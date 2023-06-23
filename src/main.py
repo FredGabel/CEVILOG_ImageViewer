@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets
+from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QImage, QPixmap, QPalette, QIcon
 from PyQt5.QtWidgets import QApplication, QLabel, QHBoxLayout, QVBoxLayout, \
@@ -143,6 +143,36 @@ class CevilogUI(QtWidgets.QWidget):
         """
         im2 = image_processing.changeBrightness(self.cv_image, 50)
         cv2.imshow("brightness_change", im2)
+
+
+    def wheelEvent(self, event):
+        """
+        Use the wheel scrolling to zoom in and out of the image
+        """
+        x = event.pos().x()
+        y = event.pos().y()
+        label_xmin = self.imageLabel.pos().x()
+        label_ymin = self.imageLabel.pos().y()
+        label_xmax = label_xmin + self.imageLabel.width()
+        label_ymax = label_ymin + self.imageLabel.height()
+        
+        if self.imageLabel.pixmap() is not None:
+          if (x>label_xmin and x<label_xmax and y>label_ymin and y<label_ymax):
+            if event.angleDelta().y() > 0:
+              self.scaleFactor *= 2
+            elif event.angleDelta().y() < 0:
+              self.scaleFactor /= 2
+            self.resize_imageLabel()    
+
+
+
+    def resize_imageLabel(self):
+        """
+        Resize the image Label to zoom in / zoom out
+        """
+        size = self.imageLabel.pixmap().size()
+        scaled_pixmap = self.imageLabel.pixmap().scaled(self.scaleFactor * size)
+        self.imageLabel.setPixmap(scaled_pixmap)
 
 
 # Main method
