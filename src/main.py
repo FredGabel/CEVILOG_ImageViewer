@@ -3,8 +3,9 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QImage, QPixmap, QPalette, QIcon
 from PyQt5.QtWidgets import QApplication, QLabel, QHBoxLayout, QVBoxLayout, \
                             QGridLayout, QFileDialog, QMessageBox, QPushButton, \
-                            QComboBox, QTextEdit
+                            QComboBox, QTextEdit, QTextBrowser
 import image_processing as image_processing
+from yolov7.seg.segment import predict
 import numpy as np
 import cv2
 import sys
@@ -60,13 +61,19 @@ class CevilogUI(QtWidgets.QWidget):
         rightLayout = QVBoxLayout()
         ###Right middle V-Layout
         rightLayout2 = QVBoxLayout()
-        modelLoadedTxt = QLabel("Model Loaded")
+        modelLoadedTxt = QLabel("Detection model :")
         modelLoadedTxt.setMaximumHeight(18)
         rightLayout2.addWidget(modelLoadedTxt)
         self.modelSelect = QComboBox()
         self.modelSelect.addItem("YOLOv7_TireDetection")
         rightLayout2.addWidget(self.modelSelect)
-        rightLayout2.addSpacing(350)
+        self.loadModelBtn = QPushButton("Load")
+        self.loadModelBtn.clicked.connect(self.loadModel)
+        rightLayout2.addWidget(self.loadModelBtn)
+        self.consoleOutput = QTextBrowser()
+        self.consoleOutput.setStyleSheet("background-color: black;")
+        rightLayout2.addWidget(self.consoleOutput)
+        rightLayout2.addSpacing(200)
         rightLayout2.setContentsMargins(50, 10, 10, 10)
         rightLayout.addLayout(rightLayout2)
 
@@ -145,6 +152,14 @@ class CevilogUI(QtWidgets.QWidget):
         cv2.imshow("brightness_change", im2)
 
 
+    def loadModel(self):
+        """
+        Load and pre-warm the NN model
+        """
+        print("Test")
+        predict.run()
+
+
     def wheelEvent(self, event):
         """
         Use the wheel scrolling to zoom in and out of the image
@@ -163,7 +178,6 @@ class CevilogUI(QtWidgets.QWidget):
             elif event.angleDelta().y() < 0:
               self.scaleFactor /= 2
             self.resize_imageLabel()    
-
 
 
     def resize_imageLabel(self):
